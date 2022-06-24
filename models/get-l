@@ -1,0 +1,24 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+let stakingOrder = new Schema({
+    settledList:[
+        {type: Schema.Types.ObjectId, ref: 'stakingSettleList'}
+    ],
+    SettleRemainingCount:{type:Number, default: 0},
+    nextSettleDayCount:{type:Number, default: 0},
+    nextSettleDate:{type:Date},
+    userid:{type: Schema.Types.ObjectId, ref: 'users'},
+    currencyRef:{type : Schema.Types.ObjectId, ref: 'currency'},
+    stakingRef:{type : Schema.Types.ObjectId, ref: 'staking'},
+    amount:{type: Number, default: 0},
+    type:{type: String, default: ''},
+    duration:{type: Number},
+    apy:{type: Number, default: 0},
+    status:{type: Number, default: 1}, // 1-active, 2-closedByUser, 3-closedByDate
+    redemptionPeriod:{type: Number, default: 1},
+    redemStatus:{type: Number, default: 1}, // 1-active, 2-process, 3-completed
+    createdDate:{type:Date, default: Date.now},
+    redemDate:{type:Date},
+});
+
+module.exports = mongoose.model('stakingOrder',stakingOrder,'stakingOrder');

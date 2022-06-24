@@ -1,0 +1,149 @@
+// import package
+import axios from "axios";
+import https from "https";
+import converter from "hex2dec";
+import querystring from "querystring";
+
+// import modal
+import Currency from "../../models/currency";
+import Assets from "../../models/Assets";
+import Transaction from "../../models/Transaction";
+
+// import config
+import config from "../../config";
+import { dogeDepositTask } from '../../config/cron';
+
+// import lib
+import isEmpty from "../../lib/isEmpty";
+import isJsonParse from "../../lib/isJsonParse";
+
+export const createAddress = async (data) => {
+  // console.log('krisssssssss')
+  try {
+    // let data = {};
+    data["type"] = "getnewaddress";
+
+    let respData = await axios({
+      method: "post",
+      'timeout': 1000,
+      url: `${config.coinGateway.doge.url}/btcnode`,
+      data: data,
+    });
+    
+    // console.log(respData, "---------------DOGE kris");
+
+    if (respData && respData.status == 200 && !isEmpty(respData.data.result)) {
+      const { result } = respData.data;
+      return {
+        address: result,
+        privateKey: "",
+      };
+    } else {
+      return {
+        address: "",
+        privateKey: "",
+      };
+    }
+  } catch (err) {
+    console.log(err,'---------------errokrishna')
+    return {
+      address: "",
+      privateKey: "",
+    };
+  }
+};
+
+dogeDepositTask.start();
+export const deposit = async () => {
+  dogeDepositTask.stop();
+  console.log("DOGE Deposit Cron...");
+  try {
+    let currencyData = await Currency.findOne({ currencySymbol: "DOGE" });
+    if (!currencyData) {
+      return false;
+    }
+    console.log(`******* ${config.coinGateway.doge.url} ********`)
+    let data = {};
+    data["type"] = "listtransactions";
+    data["skip"] = currencyData.block;
+    let respData = await axios({
+      method: "post",
+      'url': `${config.coinGateway.doge.url}/btcnode`,
+      data,
+    });
+    // console.log('----DOGE RESP',respData,'-----respData')
+    if (respData && respData.status == 200 && !isEmpty(respData.data.result)) {
+      const { result } = respData.data;
+
+      for (let item of result) {
+        if(item.category == 'receive'){
+            let checkTransaction = await Transaction.findOne({ txid: item.txid });
+            if (!checkTransaction) {
+              let userAssetData = await Assets.findOne({
+                currencyAddress: item.address,
+              })
+
+              if (userAssetData) {
+                let transactions = new Transaction();
+                transactions["userId"] = userAssetData.userId._id;
+                transactions["currencyId"] = userAssetData.currency;
+                transactions["currencySymbol"] = userAssetData.currencySymbol;
+                transactions["toaddress"] = item.address;
+                // transactions["transferType"] = "TOUSER";
+                transactions["amount"] = item.amount;
+                transactions["txid"] = item.txid;
+                transactions["status"] = "completed";
+                transactions["paymentType"] = "coin_deposit";
+              
+                let newTransactions = await transactions.save();
+                userAssetData.spotwallet = userAssetData.spotwallet + item.amount;
+                await userAssetData.save();
+              }
+            }
+        }
+      }
+      // console.log(result.length,'------DOGE result.length')
+      currencyData.block = currencyData.block + result.length;
+      await currencyData.save();
+    }
+    dogeDepositTask.start();
+  } catch (err) {
+    dogeDepositTask.start();
+    console.log("\x1b[33m%s\x1b[0m", "Erron on DOGE Deposit ", err.toString());
+  }
+};
+
+export const amountMoveToUser = async ({ userAddress, amount }) => {
+  try {
+    // info.result;
+    let data = {};
+    data["type"] = "sendtoaddress";
+    data["amount"] = amount;
+    data["toaddress"] = userAddress;
+    
+    let respData = await axios({
+      method: "post",
+      url: `${config.coinGateway.doge.url}/btcnode`,
+      data,
+    });
+    // console.log(respData && respData.data,respData.data.result,'----DOGE WITHRAW')
+    if (respData && respData.status == 200) {
+      return {
+        status: true,
+        trxId: respData.data.result,
+      };
+    } else {
+      return {
+        status: false,
+        message: "Some error",
+      };
+    }
+  } catch (err) {
+    console.log(err,'errerrerrerrerr')
+    return {
+      status: false,
+      // message: err.response.data.message
+      message: "Some error",
+    };
+  }
+};
