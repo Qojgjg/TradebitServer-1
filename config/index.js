@@ -25,8 +25,8 @@ if (process.env.NODE_ENV === 'production') {
         //Sms Gateway
          //kissan token account
          smsGateway: {
-            TWILIO_ACCOUT_SID: 'AC6c0bbf45ab1f4423c916dbd76ff3fdd9',
-           TWILIO_AUTH_TOKEN: '1e5cad474f474b7f61bc25c2d9c8c572',
+            TWILIO_ACCOUT_SID: 'AC6cbbf451f4423c916dbd76ff3fdd9',
+           TWILIO_AUTH_TOKEN: '1e5474f474b7f61bc25c2d9c8c572',
            TWILIO_PHONE_NUMBER: "+19034004219",
        },
 
@@ -150,9 +150,9 @@ if (process.env.NODE_ENV === 'production') {
         RECAPTCHA_SECRET_KEY:"6LcM-cwfAAAAAJIfCqti6ODnsu_DZxxUzoX9BhKo",
         // Sms Gateway
         smsGateway: {
-            TWILIO_ACCOUT_SID: 'AC6c0bbf45ab1f4423c916dbd76ff3fdd9',
-           TWILIO_AUTH_TOKEN: '1e5cad474f474b7f61bc25c2d9c8c572',
-           TWILIO_PHONE_NUMBER: "+19034004219",
+            TWILIO_ACCOUT_SID: 'AC6c0bab1f4423c916dbd76ff3fdd9',
+           TWILIO_AUTH_TOKEN: '1e5cad474b7f61bc25c2d9c8c572',
+           TWILIO_PHONE_NUMBER: "+190304219",
        },
 
        // Email Gateway
