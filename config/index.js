@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === 'production') {
 
        // Email Gateway
        emailGateway: {
-           SENDGRID_API_KEY: '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',
+           SENDGRID_API_KEY: '',
            fromMail: "info@tradebit.io",
            nodemailer: {
                host: "smtp-relay.sendinblue.com",
@@ -157,7 +157,7 @@ if (process.env.NODE_ENV === 'production') {
 
        // Email Gateway
        emailGateway: {
-           SENDGRID_API_KEY: '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',
+           SENDGRID_API_KEY: '',
            fromMail: "info@tradebit.io",
            nodemailer: {
                host: "smtp-relay.sendinblue.com",
